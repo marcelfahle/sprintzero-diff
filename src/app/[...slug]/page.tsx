@@ -58,6 +58,8 @@ export async function generateMetadata({
   const description =
     gist.description || "Client deliverable by Sprint Zero";
 
+  const ogImageUrl = `/api/og?slug=${encodeURIComponent(slug.join("/"))}`;
+
   return {
     title,
     description,
@@ -65,6 +67,20 @@ export async function generateMetadata({
       title,
       description,
       type: "article",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImageUrl],
     },
   };
 }

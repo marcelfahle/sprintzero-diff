@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://diff.sprintzero.sh"),
   title: "diff.sprintzero.sh",
   description: "Client deliverables by Sprint Zero",
 };

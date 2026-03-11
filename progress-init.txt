@@ -451,3 +451,44 @@ Notes for next person:
 - The sitemap.xml referenced in robots.txt doesn't exist yet — can be added later if needed, crawlers handle missing sitemaps gracefully
 - Security headers are applied to ALL routes via the catch-all source pattern "/(.*)"
 - The images.remotePatterns config is needed if you want to use next/image with GitHub avatars in the future
+
+## Feature 4.2 - Dynamic OG Image Generation [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/app/api/og/route.tsx — API route for dynamic OG image generation (1200x630)
+  - Uses next/og ImageResponse with Satori rendering
+  - Accepts ?slug= query param (e.g., ?slug=encappture or ?slug=encappture/cms-modernization)
+  - Resolves slug → fetches gist → extracts title, description, customer name from registry/gist/frontmatter
+  - Dark bg (#0a0a0a), SprintZero wordmark in orange (#f97316), gist title in white (#fafafa), description in neutral-400
+  - Bottom bar: customer name (left), diff.sprintzero.sh monospace (right)
+  - Loads Geist font (Regular + Bold) from node_modules TTF files via fs.readFile
+  - Truncates title at 60 chars, description at 120 chars
+- Created src/app/opengraph-image.tsx — static homepage OG image (Next.js file convention)
+  - Centered layout: "Sprint Zero" in orange, "diff.sprintzero.sh" in white monospace, subtitle in neutral-400
+  - Same Geist font loading approach
+  - Prerendered as static at build time
+- Updated src/app/[...slug]/page.tsx generateMetadata:
+  - Added openGraph.images array referencing /api/og?slug= endpoint
+  - Added twitter card metadata (summary_large_image) for Twitter/X previews
+- Added metadataBase: new URL("https://diff.sprintzero.sh") to root layout.tsx
+  - Eliminates "metadataBase not set" warning during build
+  - Ensures OG image URLs resolve to absolute URLs in production
+
+Technical decisions:
+- Used API route (/api/og) instead of opengraph-image.tsx in [..slug] directory — Next.js doesn't support the file convention inside catch-all route segments ("Catch-all must be the last part of the URL" error)
+- Used node:fs/promises to load Geist fonts from node_modules — more reliable than fetch(new URL()) for local files in Node.js runtime
+- Buffer → ArrayBuffer conversion via buffer.buffer.slice() for Satori compatibility
+- Homepage OG uses the Next.js opengraph-image.tsx file convention (works at root level, auto-discovered)
+
+Verified:
+- `bun run build` succeeds with zero errors — /api/og listed as ƒ (dynamic), /opengraph-image as ○ (static)
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 35 files
+- No metadataBase warning in build output
+
+Notes for next person:
+- Phase 4 is now fully COMPLETE (4.1, 4.2, 4.3, 4.4 all done)
+- To test OG images locally: visit http://localhost:3000/api/og (homepage) or http://localhost:3000/api/og?slug=encappture (dynamic)
+- The homepage OG is at /opengraph-image (auto-served by Next.js file convention)
+- OG images use Geist font loaded from node_modules — this works in Vercel's Node.js runtime (geist is a dependency)
+- Phase 2 remaining renderers (2.4 YAML, 2.5 CSV, 2.6 ICS) are still not blocking
+- Phase 5 (deploy to Vercel) is the natural next step — all Phase 1-4 features are now complete

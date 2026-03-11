@@ -312,12 +312,14 @@
           "category": "seo",
           "description": "Implement dynamic OG image generation",
           "steps": [
-            "Create file: src/app/[...slug]/opengraph-image.tsx \u2014 next/og ImageResponse 1200x630",
+            "Create file: src/app/api/og/route.tsx \u2014 next/og ImageResponse 1200x630 (API route approach since catch-all doesn't support opengraph-image convention)",
             "Dark bg, SprintZero wordmark in orange, gist title white, content preview neutral-400",
             "Create file: src/app/opengraph-image.tsx \u2014 default homepage OG",
+            "Update generateMetadata in catch-all page to reference /api/og?slug= with twitter card",
+            "Add metadataBase to root layout for proper OG URL resolution",
             "Verify: OG image renders correctly at opengraph.xyz"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "4.3",
