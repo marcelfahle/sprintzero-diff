@@ -65,7 +65,7 @@
             "Update shadcn CSS variables to align with SprintZero dark theme (--primary to sz-orange, --background to neutral-950, etc.)",
             "Verify: Page renders with dark background and Geist font, shadcn components use correct theme"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "1.4",
