@@ -305,7 +305,7 @@
             "suppressHydrationWarning on <html>, <Toaster /> from sonner in layout",
             "Verify: No white flash. ?theme=light forces light mode."
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "4.2",

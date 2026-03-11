@@ -374,3 +374,32 @@ Notes for next person:
 - YAML/CSV/ICS files will fall through to CodeRenderer until features 2.4-2.6 are implemented — they'll still display with syntax highlighting, just no pretty view
 - The basePath prop from the PRD was dropped (consistent with 3.4 — tabs use ?file= search params)
 - Footer metadata priority: registry metadata > frontmatter fields > nothing (graceful degradation)
+
+## Feature 4.1 - Dark-First Theme with Flash-Free Initialization [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/components/providers.tsx — client component wrapping next-themes ThemeProvider
+  - attribute="class" for Tailwind dark mode compatibility
+  - defaultTheme="dark" for dark-first experience
+  - enableSystem to respect OS preference
+  - disableTransitionOnChange to avoid transition artifacts on theme switch
+- ThemeUrlSync component inside Providers — reads ?theme= search param and forces theme via setTheme()
+  - Supports ?theme=light and ?theme=dark
+  - Wrapped in Suspense boundary (required for useSearchParams in Next.js 16)
+- Updated layout.tsx:
+  - Removed hardcoded `dark` class from <html> — next-themes manages the class attribute automatically
+  - Added inline <style> in <head> setting html background (#0a0a0a) and color (#fafafa) before paint — prevents white flash even before next-themes script runs
+  - Wrapped children and Toaster in <Providers> component
+  - suppressHydrationWarning already present on <html> (added in 1.3)
+- next-themes automatically injects a blocking inline script that reads localStorage/system preference and sets the class before first paint — no manual script needed
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 32 files
+
+Notes for next person:
+- Feature 4.2 (OG images) or 4.3 (homepage) are good next picks
+- The PRD mentions an inline <script> for ?theme resolution, but next-themes handles this automatically with its own blocking script — ThemeUrlSync handles the ?theme= param client-side via setTheme()
+- The Toaster is hardcoded to theme="dark" — could be made theme-aware later with useTheme() if needed, but dark is fine since it matches the default
+- The inline <style> in <head> is a belt-and-suspenders approach: next-themes script handles it, but the CSS ensures zero flash even if JS is slow
+- Phase 2 remaining renderers (2.4 YAML, 2.5 CSV, 2.6 ICS) are still not blocking
