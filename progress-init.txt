@@ -138,3 +138,28 @@ Notes for next person:
 - Next.js 16 changed revalidateTag() to require a second argument (profile). Use `{ expire: 0 }` for immediate cache invalidation.
 - The rate limit map is in-memory so it resets on server restart / cold start — acceptable for this use case.
 - The raw route uses the GitHub API data (gist.files[].content) rather than fetching raw_url separately, keeping it simple.
+
+## Feature 2.1 - Markdown Renderer [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/components/markdown-renderer.tsx — server component with GFM, alerts, frontmatter, heading anchors
+- Uses react-markdown v10 with remarkGfm, remarkAlert (from remark-github-blockquote-alert), rehypeRaw, rehypeSlug, rehypeAutolinkHeadings
+- Frontmatter parsed with gray-matter — if present, rendered as a styled key-value card with shadcn Badge (variant="secondary") on a neutral-900 bg card
+- rehypeAutolinkHeadings configured with behavior="prepend", renders a `#` character that shows on heading hover (opacity transition)
+- Did NOT use rehype-sanitize: the default schema strips class attributes and SVGs, breaking alert styling. Content comes from controlled GitHub Gists so sanitization is unnecessary.
+- Did NOT import remark-github-blockquote-alert/alert.css: it uses prefers-color-scheme media queries but the project uses class-based dark mode (.dark on html). Wrote all alert styles from scratch instead.
+- Added comprehensive .markdown-body styles to globals.css (~200 lines): prose at 0.9375rem/1.75 line-height, dark-themed headings with bottom borders (h1/h2), sz-orange links, dark code blocks (neutral-900 bg, neutral-800 border), blockquotes, tables with neutral-800 borders, task list checkboxes, heading anchor hover effects
+- Added GitHub-style blockquote alert styles: NOTE=blue (#3b82f6), TIP=green (#22c55e), IMPORTANT=sz-orange (#f97316), WARNING=yellow (#eab308), CAUTION=red (#ef4444) — each with left border, tinted background, and colored title with SVG icon
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 17 files
+- `bunx tsc --noEmit` passes with no type errors
+
+Notes for next person:
+- Feature 2.2 (Shiki code renderer with per-block copy buttons) is the natural next step
+- The MarkdownRenderer is a server component — it can be used directly in server pages
+- The component exports: MarkdownRenderer({ content: string }) — pass raw markdown content including frontmatter
+- The FrontmatterCard is an internal component, not exported separately
+- Alert styles are self-contained in globals.css (no dependency on alert.css from the package)
+- The markdown-body class is designed for dark theme only. Feature 4.1 (theme system) may need light-mode overrides later.

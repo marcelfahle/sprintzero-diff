@@ -137,7 +137,7 @@
             "Import remark-github-blockquote-alert/alert.css, override for dark theme (NOTE=blue, TIP=green, IMPORTANT=sz-orange, WARNING=yellow, CAUTION=red)",
             "Verify: Markdown with frontmatter, headings, GFM alerts, code block, table, link all render correctly"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.2",
