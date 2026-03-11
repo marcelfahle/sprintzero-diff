@@ -1,4 +1,15 @@
 {
+  "acme": {
+    "name": "Acme Corp",
+    "default": "platform-modernization",
+    "projects": {
+      "platform-modernization": {
+        "gistId": "166e66da734c5d52522ca13a72cfa790",
+        "name": "Platform Modernization",
+        "date": "2026-03"
+      }
+    }
+  },
   "encappture": {
     "name": "Encappture",
     "default": "cms-modernization",
