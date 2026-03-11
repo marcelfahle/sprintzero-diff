@@ -175,7 +175,7 @@
             "Wrap in StructuredFileViewer for Pretty/Raw toggle",
             "Verify: YAML renders as tree, Raw shows highlighted YAML"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.5",

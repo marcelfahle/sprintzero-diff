@@ -2,10 +2,11 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import matter from "gray-matter";
 import { resolveSlug, getCustomerByGistId } from "@/lib/registry";
-import { fetchGist, isMarkdown, isJSON } from "@/lib/github";
+import { fetchGist, isMarkdown, isJSON, isYAML } from "@/lib/github";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { CodeRenderer } from "@/components/code-renderer";
 import { JsonViewer } from "@/components/renderers/json-viewer";
+import { YamlViewer } from "@/components/renderers/yaml-viewer";
 import { GistClientShell, type FileData } from "@/components/gist-client-shell";
 import { EngagementFooter } from "@/components/engagement-footer";
 
@@ -35,6 +36,9 @@ async function renderFile(
   }
   if (isJSON(filename)) {
     return <JsonViewer content={content} filename={filename} />;
+  }
+  if (isYAML(filename)) {
+    return <YamlViewer content={content} filename={filename} />;
   }
   return <CodeRenderer code={content} filename={filename} language={language} />;
 }
