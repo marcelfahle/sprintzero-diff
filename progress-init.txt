@@ -163,3 +163,41 @@ Notes for next person:
 - The FrontmatterCard is an internal component, not exported separately
 - Alert styles are self-contained in globals.css (no dependency on alert.css from the package)
 - The markdown-body class is designed for dark theme only. Feature 4.1 (theme system) may need light-mode overrides later.
+
+## Feature 2.2 - Shiki Code Renderer with Per-Block Copy Buttons [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/lib/shiki.ts — Shiki code highlighting utilities
+  - getShikiLang(filename, language) maps file extensions and GitHub language strings to Shiki language identifiers
+  - Covers 40+ language mappings (ts, tsx, py, rb, rs, go, sh, etc.) with special filename handling (Dockerfile, Makefile)
+  - highlightCode(code, lang) renders code to HTML using Shiki's codeToHtml with github-dark-default theme
+  - Falls back to plain "text" if language isn't supported by Shiki
+- Created src/components/code-renderer.tsx — async server component
+  - Takes code, filename, and language props; calls getShikiLang then highlightCode
+  - Uses dangerouslySetInnerHTML to render Shiki's highlighted HTML output
+  - Styled: rounded-lg, border neutral-800, bg neutral-900, font-mono text-sm, overflow-x-auto
+  - Overrides Shiki's default pre/code backgrounds to transparent so container styles apply
+- Created src/components/copy-button.tsx — reusable client component
+  - Takes getText callback (lazy evaluation — doesn't capture text at render time)
+  - Clipboard icon → checkmark with 2s reset using lucide-react Copy/Check icons
+  - Styled to match neutral dark theme with hover state
+- Created src/components/code-block-enhancer.tsx — client wrapper that injects copy buttons onto <pre> elements
+  - Uses useEffect to scan for <pre> elements inside the wrapper on mount
+  - Creates portal mount points positioned absolute top-right on each pre block
+  - Uses React createPortal to render CopyButton into each mount point
+  - Extracts text content from <code> or <pre> for clipboard
+  - Marks enhanced blocks with data-enhanced to avoid duplicates
+  - Cleans up on unmount
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 21 files
+- `bunx tsc --noEmit` passes with no type errors
+
+Notes for next person:
+- Feature 2.3 (JSON tree viewer with collapsible nodes and Pretty/Raw toggle) is the natural next step
+- CodeRenderer is an async server component — use it directly in server pages with `await`
+- CodeBlockEnhancer is a client component — wrap any content div containing <pre> blocks to get per-block copy buttons
+- CopyButton is reusable — takes a getText callback, so it can be used for any copy-to-clipboard need
+- The Shiki theme is github-dark-default — matches the overall dark theme well
+- CodeBlockEnhancer uses React portals to inject buttons without re-rendering the highlighted HTML
