@@ -238,7 +238,7 @@
             "Refresh: POST /api/refresh/{gistId}, router.refresh(), sonner toast",
             "Verify: All 7 actions work from dropdown and keyboard"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "3.3",

@@ -260,3 +260,33 @@ Notes for next person:
 - The base-ui Tabs onValueChange callback receives (value: string | number | null), not just string — handle accordingly
 - FileTabs is wrapped in Suspense boundary needed for useSearchParams in Next.js 16 — the parent (GistClientShell in 3.4) should provide this
 - Next features on the critical path: 3.2 (copy buttons), 3.3 (footer), 3.4 (shell), 3.5 (catch-all route)
+
+## Feature 3.2 - Page-Level Copy Button Dropdown with Keyboard Shortcuts [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/components/page-copy-buttons.tsx — client component with shadcn DropdownMenu
+- Uses MoreVertical icon as trigger, shows Check icon on successful copy (2s reset)
+- 7 menu items with keyboard shortcut hints via DropdownMenuShortcut:
+  1. Copy raw (C) — copies raw content to clipboard
+  2. Copy formatted (F, markdown only) — clones #gist-content, strips [data-copy-button] elements, writes HTML+text via ClipboardItem
+  3. Download (D) — creates Blob → object URL → triggers download with original filename
+  4. Copy link (L) — copies current page URL
+  5. Open source gist (O) — opens gist.github.com in new tab
+  6. Refresh (R) — POST /api/refresh/{gistId}, calls router.refresh(), shows spinner during request
+- Keyboard shortcuts on document keydown, skips inputs/textarea/contenteditable and modifier keys (meta/ctrl/alt)
+- All actions show sonner toast feedback (success/error)
+- Refresh button shows animated spin icon and is disabled during request; handles 429 rate limit
+- Added Toaster from sonner to layout.tsx (dark theme) — needed for toast notifications across the app
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 27 files
+
+Notes for next person:
+- Feature 3.3 (engagement footer) is the natural next step on the critical path
+- The component requires these props: rawContent, filename, gistId, gistHtmlUrl, isMarkdown (optional)
+- Copy formatted (F shortcut) only appears/works when isMarkdown=true
+- The component expects an element with id="gist-content" in the DOM for Copy formatted to work — GistClientShell (3.4) should provide this
+- Sonner Toaster is now in layout.tsx — no need to add it elsewhere
+- The DropdownMenu uses base-ui's Menu primitive (not Radix) — onClick on DropdownMenuItem works directly
+- Critical path remaining: 3.3 (footer), 3.4 (shell), 3.5 (catch-all route)
