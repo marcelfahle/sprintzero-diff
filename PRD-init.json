@@ -47,7 +47,7 @@
             "Run: bunx shadcn@latest add toggle-group (for Pretty/Raw segmented control)",
             "Verify: Components are generated in src/components/ui/. bun dev still runs."
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "1.3",

@@ -17,3 +17,25 @@ Notes for next person:
 - Feature 1.2 (shadcn/ui init) is the natural next step
 - The PRD mentions oxfmt but it's not a real package yet — oxlint handles what it can. Consider using Prettier or Biome if a dedicated formatter is needed.
 - babel-plugin-react-compiler is included by create-next-app — keep it, it's the React Compiler for Next.js 16
+
+## Feature 1.2 - shadcn/ui Init [COMPLETE] - 2026-03-11
+
+Implemented:
+- Initialized shadcn/ui with `bunx shadcn@latest init --defaults --force` (base-nova style, Neutral base color, CSS variables, Lucide icons)
+- Installed all PRD-required components: dropdown-menu, tooltip, tabs, badge, toggle, toggle-group (plus button from init)
+- Generated components.json config at project root
+- Created src/lib/utils.ts with `cn()` utility (clsx + tailwind-merge)
+- shadcn updated globals.css with full Tailwind v4 theme (oklch colors, CSS variables for light/dark mode, radius tokens, sidebar tokens)
+- Fixed broken font mapping: shadcn init changed `--font-sans: var(--font-geist-sans)` to `--font-sans: var(--font-sans)` (circular ref) — restored to correct value
+- New dependencies added by shadcn: tw-animate-css, @radix-ui/react-dropdown-menu, @radix-ui/react-tabs, @radix-ui/react-toggle, @radix-ui/react-toggle-group, @radix-ui/react-tooltip, class-variance-authority
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors
+- All 7 component files in src/components/ui/
+
+Notes for next person:
+- Feature 1.3 (Tailwind v4 + Geist fonts + SprintZero dark theme) is the natural next step
+- shadcn used "base-nova" style (not "new-york" as PRD says — new-york is no longer an option in latest shadcn)
+- The globals.css now has full shadcn theme variables in oklch color space. Feature 1.3 should customize --primary to sz-orange, --background to neutral-950, etc.
+- TooltipProvider needs to be added to layout.tsx (can be done in 1.3 or 3.4 when building the shell)
