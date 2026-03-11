@@ -200,7 +200,7 @@
             "Wrap in StructuredFileViewer for Pretty/Raw toggle",
             "Verify: ICS with 2-3 events renders formatted cards"
           ],
-          "passes": false
+          "passes": true
         }
       ]
     },
@@ -408,7 +408,7 @@
             "Create file: templates/AI-SETUP.md \u2014 Installed Tools, Custom Skills, Workflows, Tips",
             "Verify: Each template is valid markdown with realistic placeholder content"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "6.2",

@@ -578,3 +578,27 @@ Notes for next person:
 - Phase 6 (templates, agent skill, Encappture deliverable) depends on Phase 5
 - The ical.js package was already installed in feature 1.1 — no new dependencies added
 - Card styling: neutral-800 bg, rounded-lg, border neutral-700 — matches PRD spec exactly
+
+## Feature 6.1 - Deliverable Templates [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created templates/ directory at project root with 5 template files per PRD spec
+- templates/README.md — Executive summary with frontmatter (client, engagement, delivered, sprint_duration, lead, status), GFM alerts for key metrics table, What Changed, Why It Matters (business impact with benefits list), What's Next (recommendations)
+- templates/TECHNICAL.md — Architecture Decisions table, Migration Summary table (from/to/status), Before/After code blocks, Deferred Work with WARNING alert, Next Steps
+- templates/SECURITY.md — Vulnerability Summary table by severity (critical/high/moderate/low with before/after/change), Remediations table, Remaining Risk with CAUTION alert, Recommendations with TIP alert
+- templates/TESTING.md — Coverage Summary table (category/tests/passing/coverage), E2E Tests table, How to Run with bash code blocks, How to Extend guide
+- templates/AI-SETUP.md — Installed Tools table, Custom Skills table with triggers, Workflows with bash code blocks, Tips section
+- All templates use {{PLACEHOLDER}} syntax for easy find-and-replace when creating real deliverables
+- All templates use GFM alerts (NOTE, TIP, IMPORTANT, WARNING, CAUTION) which render styled in the app's markdown renderer
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 41 files
+- Each template is valid markdown with realistic placeholder content and proper structure
+
+Notes for next person:
+- Feature 6.2 (Claude Code agent skill for publishing deliverables) is the natural next step — does not depend on deployment
+- Feature 6.3 (Encappture deliverable) depends on Phase 5 (deployment) being complete
+- Phase 5 (5.1, 5.2, 5.3) still requires human actions: Vercel project creation, DNS CNAME, GITHUB_TOKEN env var
+- Templates are in templates/ at project root — not in src/ since they're not app code, they're content templates for the publishing workflow
+- The {{PLACEHOLDER}} convention makes it easy for both humans and AI agents to fill in values
