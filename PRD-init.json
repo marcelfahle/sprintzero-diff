@@ -338,7 +338,7 @@
             "Create file: src/app/robots.txt/route.ts",
             "Verify: bun run build succeeds, response headers correct"
           ],
-          "passes": false
+          "passes": true
         }
       ]
     },

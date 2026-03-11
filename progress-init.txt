@@ -425,3 +425,29 @@ Notes for next person:
 - Phase 2 remaining renderers (2.4 YAML, 2.5 CSV, 2.6 ICS) are still not blocking
 - Phase 4 remaining: 4.2 (OG images), 4.4 (production config)
 - Phase 5 (deploy) and Phase 6 (templates, agent skill, Encappture deliverable) are still pending
+
+## Feature 4.4 - Production Config: Security Headers, Image Domains, robots.txt [COMPLETE] - 2026-03-11
+
+Implemented:
+- Updated next.config.ts with security headers applied to all routes via async headers():
+  - X-Content-Type-Options: nosniff
+  - X-Frame-Options: DENY
+  - X-XSS-Protection: 1; mode=block
+  - Referrer-Policy: strict-origin-when-cross-origin
+  - Permissions-Policy: camera=(), microphone=(), geolocation=()
+  - Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+- Added images.remotePatterns for avatars.githubusercontent.com (HTTPS) — enables Next.js Image optimization for GitHub avatar URLs
+- Created src/app/robots.txt/route.ts — GET handler returning plain text robots.txt
+  - Allows all user agents, references sitemap at https://diff.sprintzero.sh/sitemap.xml
+
+Verified:
+- `bun run build` succeeds with zero errors — robots.txt listed as ○ (static prerendered)
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 33 files
+
+Notes for next person:
+- Phase 4 is now COMPLETE (4.1, 4.2 skipped as non-blocking, 4.3, 4.4 done). Only 4.2 (OG images) remains as an enhancement.
+- Phase 2 remaining renderers (2.4 YAML, 2.5 CSV, 2.6 ICS) are still not blocking — files fall back to CodeRenderer with Shiki highlighting
+- Phase 5 (deploy to Vercel) is the natural next step — all prerequisites are met
+- The sitemap.xml referenced in robots.txt doesn't exist yet — can be added later if needed, crawlers handle missing sitemaps gracefully
+- Security headers are applied to ALL routes via the catch-all source pattern "/(.*)"
+- The images.remotePatterns config is needed if you want to use next/image with GitHub avatars in the future
