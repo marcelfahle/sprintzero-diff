@@ -151,7 +151,7 @@
             "Style: rounded-lg, border neutral-800, bg neutral-900, font-mono text-sm, overflow-x-auto",
             "Verify: TypeScript snippet has syntax highlighting, copy button works"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.3",
@@ -164,7 +164,7 @@
             "Create file: src/components/renderers/structured-file-viewer.tsx \u2014 wrapper with shadcn ToggleGroup for Pretty|Raw",
             "Verify: Nested JSON is collapsible tree, Raw shows Shiki-highlighted source"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.4",

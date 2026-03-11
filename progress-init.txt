@@ -201,3 +201,37 @@ Notes for next person:
 - CopyButton is reusable — takes a getText callback, so it can be used for any copy-to-clipboard need
 - The Shiki theme is github-dark-default — matches the overall dark theme well
 - CodeBlockEnhancer uses React portals to inject buttons without re-rendering the highlighted HTML
+
+## Feature 2.3 - JSON Tree Viewer with Collapsible Nodes and Pretty/Raw Toggle [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/components/renderers/data-tree-viewer.tsx — shared recursive collapsible tree component for JSON/YAML
+  - Recursive TreeNode component with expand/collapse via chevron icons (ChevronRight/ChevronDown from lucide-react)
+  - Color-coded values: keys neutral-400, strings green-400, numbers sz-orange, booleans blue-400, null neutral-500 italic
+  - Collapsed nodes show item count badge (e.g. "{ 3 items }")
+  - Root level expanded by default, nested levels collapsed by default
+  - Indentation via pl-6 with vertical border-l guide lines (neutral-800)
+  - Exports JsonValue type for reuse by YAML viewer (feature 2.4)
+- Created src/components/renderers/structured-file-viewer.tsx — Pretty/Raw toggle wrapper
+  - Uses shadcn ToggleGroup with "outline" variant and "sm" size
+  - Toggle bar at top-right with border-b separator
+  - Rounded-lg container with neutral-800 border and neutral-900 bg
+  - Note: base-ui ToggleGroup uses array-based value (not Radix's type="single"), so value={[mode]} pattern is needed
+- Created src/components/renderers/json-viewer.tsx — async server component
+  - Pre-renders Shiki-highlighted raw view via CodeRenderer (server-side)
+  - Delegates to JsonViewerClient for client-side interactivity
+- Created src/components/renderers/json-viewer-client.tsx — client component
+  - Parses JSON content with useMemo, falls back to raw view on parse error
+  - Wraps DataTreeViewer and raw CodeRenderer output in StructuredFileViewer
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 25 files
+- `bunx tsc --noEmit` passes with no type errors
+
+Notes for next person:
+- Feature 2.4 (YAML tree viewer) is the natural next step — just parse YAML and pass to DataTreeViewer
+- The DataTreeViewer is framework-agnostic (takes any JsonValue) — reusable for YAML, TOML, etc.
+- StructuredFileViewer is reusable for any Pretty/Raw toggle — CSV (2.5) and ICS (2.6) will use it too
+- The shadcn ToggleGroup from base-ui uses array values, not type="single". Use value={[mode]} and extract from onValueChange array.
+- JsonViewer splits into server (json-viewer.tsx) and client (json-viewer-client.tsx) to pre-render Shiki highlighting on the server while keeping toggle state client-side
