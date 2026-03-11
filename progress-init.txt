@@ -548,3 +548,33 @@ Notes for next person:
 - PapaParse was already installed in feature 1.1 — no new dependencies added
 - Phase 2 remaining: 2.6 (ICS). Phase 5 (deploy) and Phase 6 (templates/skill/deliverable) still pending
 - All Phase 1-4 features are complete. Phase 2 has 1 remaining renderer (ICS)
+
+## Feature 2.6 - ICS/iCal Calendar Event Card Viewer [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/components/renderers/ics-viewer.tsx — async server component (follows same pattern as YamlViewer/CsvViewer)
+  - Pre-renders Shiki-highlighted raw view via CodeRenderer on the server
+  - Delegates to IcsViewerClient for client-side interactivity
+- Created src/components/renderers/ics-viewer-client.tsx — client component
+  - Parses ICS content with ical.js (ICAL.Component.fromString → getAllSubcomponents("vevent") → ICAL.Event)
+  - Extracts: summary, description, location, organizer (strips mailto: prefix), start/end dates, all-day detection, attendees (via CN parameter)
+  - Renders VEVENT cards with lucide-react icons: Calendar/Clock for dates, MapPin for location, User for organizer, Users for attendees
+  - Smart date formatting: all-day events show "Wednesday, March 11, 2026", timed events show "Wed, Mar 11, 2026, 2:00 PM"
+  - Description shown below a separator border when present
+  - Falls back to raw Shiki view if parsing fails or yields zero events
+  - Wraps cards and raw view in StructuredFileViewer for Pretty/Raw toggle
+- Updated src/app/[...slug]/page.tsx — added isICS import and ICS routing in renderFile()
+  - ICS files (.ics, .ical) now render with event card Pretty view and Shiki-highlighted Raw view
+  - Previously fell through to CodeRenderer (syntax highlighting only, no card view)
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 41 files
+
+Notes for next person:
+- Phase 2 is now fully COMPLETE (all 6 renderers: Markdown, Code, JSON, YAML, CSV, ICS)
+- All Phase 1-4 features are complete. Phase 2 is complete.
+- Phase 5 (deploy to Vercel) is the natural next step — requires human actions (Vercel project creation, DNS, GITHUB_TOKEN env var)
+- Phase 6 (templates, agent skill, Encappture deliverable) depends on Phase 5
+- The ical.js package was already installed in feature 1.1 — no new dependencies added
+- Card styling: neutral-800 bg, rounded-lg, border neutral-700 — matches PRD spec exactly
