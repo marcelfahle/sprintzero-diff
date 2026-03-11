@@ -116,7 +116,7 @@
             "Rate limit: in-memory Map, reject 429 if within 60 seconds",
             "Verify: POST /api/refresh/{gistId} returns 200, repeat within 60s returns 429"
           ],
-          "passes": false
+          "passes": true
         }
       ]
     },

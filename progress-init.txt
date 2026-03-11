@@ -114,3 +114,27 @@ Notes for next person:
 - GITHUB_TOKEN is optional — requests work without it but are limited to 60 req/hour (vs 5,000 with token)
 - The GIST_ID_RE regex (same as registry.ts) validates gist IDs before making API calls to avoid unnecessary requests
 - All fetch functions return null on 404 for easy notFound() integration in page components
+
+## Feature 1.6 - API Routes: Raw Content and Cache Refresh [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/app/api/raw/[gistId]/route.ts — GET handler that fetches a gist and returns raw file content
+  - Accepts ?file= query param to select a specific file, defaults to first file
+  - Returns correct Content-Type based on file extension via getMimeType()
+  - Sets Content-Disposition inline header and Cache-Control (86400s)
+  - Returns 404 if gist not found or has no files
+- Created src/app/api/refresh/[gistId]/route.ts — POST handler for on-demand cache busting
+  - Validates gist ID format (hex 20-32 chars) before processing
+  - In-memory rate limiting: rejects 429 if same gist refreshed within 60 seconds
+  - Calls revalidateTag(`gist-${gistId}`, { expire: 0 }) to bust Next.js fetch cache
+
+Verified:
+- `bun run build` succeeds with zero errors — both routes listed as dynamic (ƒ)
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 16 files
+
+Notes for next person:
+- Phase 1 is now COMPLETE. Phase 2 (Core renderers) is the natural next step.
+- Feature 2.1 (Markdown renderer) is the highest-priority next feature.
+- Next.js 16 changed revalidateTag() to require a second argument (profile). Use `{ expire: 0 }` for immediate cache invalidation.
+- The rate limit map is in-memory so it resets on server restart / cold start — acceptable for this use case.
+- The raw route uses the GitHub API data (gist.files[].content) rather than fetching raw_url separately, keeping it simple.
