@@ -327,7 +327,7 @@
             "src/app/page.tsx: minimal dark page, SprintZero wordmark, 'diff.sprintzero.sh' heading, 'Client deliverables by Sprint Zero' subtitle, link to sprintzero.sh",
             "Verify: localhost:3000 renders clean homepage"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "4.4",

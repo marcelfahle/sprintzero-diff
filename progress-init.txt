@@ -403,3 +403,25 @@ Notes for next person:
 - The Toaster is hardcoded to theme="dark" — could be made theme-aware later with useTheme() if needed, but dark is fine since it matches the default
 - The inline <style> in <head> is a belt-and-suspenders approach: next-themes script handles it, but the CSS ensures zero flash even if JS is slow
 - Phase 2 remaining renderers (2.4 YAML, 2.5 CSV, 2.6 ICS) are still not blocking
+
+## Feature 4.3 - Minimal Homepage [COMPLETE] - 2026-03-11
+
+Implemented:
+- Replaced default create-next-app template page with SprintZero-branded minimal homepage
+- "Sprint Zero" wordmark as link to sprintzero.sh, styled with sz-orange and hover transition
+- "diff.sprintzero.sh" heading in font-mono, bold, responsive sizing (text-3xl sm:text-4xl)
+- "Client deliverables by Sprint Zero" subtitle in neutral-500
+- Centered vertically and horizontally with min-h-screen, responsive padding
+- Removed unused Image import and all create-next-app boilerplate (Next.js logo, Vercel logo, template links)
+- Page is a server component (no "use client" needed — pure static content)
+
+Verified:
+- `bun run build` succeeds with zero errors — homepage listed as ○ / (static, prerendered)
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 32 files
+
+Notes for next person:
+- Feature 4.2 (OG images) or 4.4 (production config) are good next picks
+- The homepage is fully static — no API calls, no client JS
+- Phase 2 remaining renderers (2.4 YAML, 2.5 CSV, 2.6 ICS) are still not blocking
+- Phase 4 remaining: 4.2 (OG images), 4.4 (production config)
+- Phase 5 (deploy) and Phase 6 (templates, agent skill, Encappture deliverable) are still pending
