@@ -344,3 +344,33 @@ Notes for next person:
 - FileData.renderedContent should be the pre-rendered ReactNode for each file (MarkdownRenderer, CodeRenderer, JsonViewer, etc.)
 - The ?theme param is intentionally not handled here — it belongs in the ThemeProvider (feature 4.1) at the layout level
 - Critical path remaining: 3.5 (catch-all route) — after that, the app will be functional end-to-end
+
+## Feature 3.5 - Catch-All Route with Slug Resolution [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/app/[...slug]/page.tsx — async server component with full slug resolution pipeline
+  - Extracts slug array from params (Next.js 16 async params pattern), calls resolveSlug()
+  - If null → notFound(). fetchGist(gistId), if null → notFound()
+  - Extracts all files from gist, pre-renders ALL panels in parallel via Promise.all
+  - File type detection: isMarkdown → MarkdownRenderer, isJSON → JsonViewer, else → CodeRenderer
+  - Parses frontmatter from first markdown file for extra metadata (client, engagement, delivered fields)
+  - Builds footer props by merging registry metadata (customer/project from resolveSlug) + frontmatter fields + getCustomerByGistId reverse lookup
+  - Passes FileData[] and engagementFooter to GistClientShell
+  - generateMetadata: resolves slug, fetches gist, builds title "{Project Name} · Sprint Zero" or falls back to gist description, OG metadata
+  - export const revalidate = 86400 for ISR
+- Created src/app/[...slug]/not-found.tsx — minimal dark 404 page with "Deliverable not found" and link to sprintzero.sh
+  - Styled with sz-orange link color, centered layout
+
+Verified:
+- `bun run build` succeeds with zero errors — route listed as ƒ /[...slug] (dynamic)
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 31 files
+
+Notes for next person:
+- Phase 3 is now COMPLETE. The app is functional end-to-end (slug resolution → gist fetch → render → display).
+- Phase 2 has remaining renderers: 2.4 (YAML), 2.5 (CSV), 2.6 (ICS) — these are enhancements, not blocking
+- Phase 4 (theme polish, OG images, homepage, production config) is the natural next phase
+- Feature 4.1 (dark-first theme with ThemeProvider) or 4.3 (homepage) are good next picks
+- The catch-all route currently renders: Markdown (MarkdownRenderer), JSON (JsonViewer with tree/raw toggle), everything else (CodeRenderer with Shiki highlighting)
+- YAML/CSV/ICS files will fall through to CodeRenderer until features 2.4-2.6 are implemented — they'll still display with syntax highlighting, just no pretty view
+- The basePath prop from the PRD was dropped (consistent with 3.4 — tabs use ?file= search params)
+- Footer metadata priority: registry metadata > frontmatter fields > nothing (graceful degradation)

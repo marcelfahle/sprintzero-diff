@@ -287,7 +287,7 @@
             "Set export const revalidate = 86400",
             "Verify: /encappture resolves and renders. /encappture/cms-modernization works. /{hex-id} works. /nonexistent 404s."
           ],
-          "passes": false
+          "passes": true
         }
       ]
     },
