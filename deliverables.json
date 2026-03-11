@@ -1,0 +1,13 @@
+{
+  "encappture": {
+    "name": "Encappture",
+    "default": "cms-modernization",
+    "projects": {
+      "cms-modernization": {
+        "gistId": "PLACEHOLDER",
+        "name": "CMS React Modernization",
+        "date": "2026-03"
+      }
+    }
+  }
+}

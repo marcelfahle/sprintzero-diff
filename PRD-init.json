@@ -84,7 +84,7 @@
             "Export helper: getCustomerByGistId(gistId: string) \u2014 reverse lookup for footer metadata",
             "Verify: resolveSlug(['encappture']) returns gist ID. resolveSlug(['encappture', 'cms-modernization']) returns same. resolveSlug(['abc123def456789012345678']) returns raw ID. resolveSlug(['nonexistent']) returns null."
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "1.5",

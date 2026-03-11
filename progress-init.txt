@@ -67,3 +67,28 @@ Notes for next person:
 - The `dark` class is hard-coded on `<html>` for now. Feature 4.1 will add next-themes ThemeProvider for ?theme= param support
 - TooltipProvider still needs to be added (feature 3.4 or 4.1)
 - The default page.tsx still has the create-next-app template — feature 4.3 will replace it with the SprintZero homepage
+
+## Feature 1.4 - Deliverables Registry [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created deliverables.json at project root with Encappture/cms-modernization entry (gistId: PLACEHOLDER)
+- Created src/lib/registry.ts with full TypeScript types: DeliverableProject, DeliverableCustomer, DeliverableRegistry
+- Implemented resolveSlug(slugParts) with all 4 resolution paths:
+  1. Single segment matching customer slug with default project → resolve default gist ID
+  2. Single segment that is hex 20-32 chars → raw gist ID (direct/dev access)
+  3. Two segments [customer, project] → look up both → gist ID
+  4. No match → null
+- Implemented getCustomerByGistId(gistId) reverse lookup for footer metadata
+- JSON import via resolveJsonModule (tsconfig already enabled)
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors
+- `bunx tsc --noEmit` passes with no type errors
+
+Notes for next person:
+- Feature 1.5 (GitHub Gist API data layer) is the natural next step
+- The registry imports deliverables.json with a relative path (../../deliverables.json from src/lib/)
+- To add a new customer: add entry to deliverables.json with slug key, name, optional default project, and projects map
+- The hex regex validates 20-32 character hex strings for raw gist IDs
+- getCustomerByGistId iterates all customers/projects — fine for small registries, optimize if it grows large
