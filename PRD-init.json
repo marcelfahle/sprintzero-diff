@@ -188,7 +188,7 @@
             "Wrap in StructuredFileViewer for Pretty/Raw toggle",
             "Verify: CSV sorts correctly, scrolls on narrow viewports"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "2.6",

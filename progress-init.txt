@@ -517,3 +517,34 @@ Notes for next person:
 - The `yaml` package was already installed in feature 1.1 — no new dependencies added
 - Phase 2 remaining: 2.5 (CSV), 2.6 (ICS). Phase 5 (deploy) and Phase 6 (templates/skill/deliverable) still pending
 - All Phase 1-4 features are now complete. Phase 2 has 2 remaining renderers (CSV, ICS)
+
+## Feature 2.5 - CSV/TSV Sortable Table Viewer [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/components/renderers/csv-viewer.tsx — async server component (mirrors JsonViewer/YamlViewer pattern)
+  - Pre-renders Shiki-highlighted raw view via CodeRenderer on the server
+  - Detects TSV vs CSV by file extension, passes delimiter hint
+  - Delegates to CsvViewerClient for client-side interactivity
+- Created src/components/renderers/csv-viewer-client.tsx — client component
+  - Parses CSV/TSV content with PapaParse (already installed in 1.1), auto-detects TSV by extension
+  - Renders HTML table: sticky header (bg-neutral-900), alternating row colors (neutral-950/neutral-900)
+  - Click-to-sort column headers with arrow indicators (ArrowUp/ArrowDown from lucide-react, colored sz-orange)
+  - Smart sort: tries numeric comparison first, falls back to locale-aware string comparison
+  - Three-state sort cycle: unsorted → ascending → descending → unsorted
+  - Horizontal scroll via overflow-x-auto for narrow viewports
+  - Falls back to raw Shiki view if parsing fails (empty data)
+  - Wraps table and raw view in StructuredFileViewer for Pretty/Raw toggle
+- Updated src/app/[...slug]/page.tsx — added isCSV import and CSV routing in renderFile()
+  - CSV/TSV files (.csv, .tsv) now render with sortable table Pretty view and Shiki-highlighted Raw view
+  - Previously fell through to CodeRenderer (syntax highlighting only, no table view)
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 39 files
+
+Notes for next person:
+- Feature 2.6 (ICS/iCal calendar event card viewer) is the last remaining Phase 2 renderer
+- The CSV viewer follows the exact same server/client split pattern as JsonViewer and YamlViewer
+- PapaParse was already installed in feature 1.1 — no new dependencies added
+- Phase 2 remaining: 2.6 (ICS). Phase 5 (deploy) and Phase 6 (templates/skill/deliverable) still pending
+- All Phase 1-4 features are complete. Phase 2 has 1 remaining renderer (ICS)
