@@ -251,7 +251,7 @@
             "Below: 'View source gist' left \u2192 gist.github.com, 'Sprint Zero \u00b7 2026' right, neutral-500 text-xs",
             "Verify: Renders cleanly with and without metadata"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "3.4",

@@ -290,3 +290,25 @@ Notes for next person:
 - Sonner Toaster is now in layout.tsx — no need to add it elsewhere
 - The DropdownMenu uses base-ui's Menu primitive (not Radix) — onClick on DropdownMenuItem works directly
 - Critical path remaining: 3.3 (footer), 3.4 (shell), 3.5 (catch-all route)
+
+## Feature 3.3 - SprintZero Engagement Footer [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/components/engagement-footer.tsx — server component (no "use client" needed, no interactivity)
+- Props: customerName?, projectName?, deliveryDate?, gistHtmlUrl
+- Top row (conditional, only when metadata exists): "Sprint Zero" wordmark linking to sprintzero.sh (left), metadata items with dot separators (right) — customerName, projectName, deliveryDate
+- Bottom row (always shown): "View source gist" link with ExternalLink icon → gist.github.com (left), "Sprint Zero · {year}" (right)
+- Styling: border-t neutral-800, mt-12 pt-6 pb-8, neutral-300/400/500 text hierarchy, hover:text-sz-orange on wordmark, hover:text-neutral-300 on gist link
+- Metadata items use flex-wrap for narrow viewports with gap-x-3 gap-y-1 spacing
+- Year is dynamic via new Date().getFullYear()
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 28 files
+
+Notes for next person:
+- Feature 3.4 (GistClientShell) is the next critical-path item
+- EngagementFooter is a server component — pass it as a ReactNode prop to GistClientShell (as specified in PRD 3.4)
+- Props are all optional except gistHtmlUrl — works cleanly with no metadata (anonymous gist ID access) or full metadata (registry-resolved slug)
+- The wordmark is plain text "Sprint Zero" — no SVG/image logo needed for now
+- Critical path remaining: 3.4 (shell), 3.5 (catch-all route)
