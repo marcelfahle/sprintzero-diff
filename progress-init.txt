@@ -1,0 +1,19 @@
+## Feature 1.1 - Project Scaffold [COMPLETE] - 2026-03-11
+
+Implemented:
+- Next.js 16.1.6 project initialized with Bun, TypeScript, Tailwind v4, App Router, src/ directory
+- Removed eslint in favor of oxlint (eslint.config.mjs deleted, eslint + eslint-config-next uninstalled)
+- Installed all dependencies per PRD: react-markdown ecosystem, shiki, gray-matter, papaparse, yaml, ical.js, geist, next-themes, clsx, tailwind-merge, lucide-react, sonner
+- Created .env.local and .env.local.example with GITHUB_TOKEN placeholder
+- Updated package.json: name to "diff.sprintzero.sh", scripts for lint/fmt/fmt:check using oxlint
+- Note: oxfmt is not yet a standalone binary (oxlint doesn't have a separate formatter yet), so fmt scripts use oxlint --fix for now
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors
+- Project compiles TypeScript successfully
+
+Notes for next person:
+- Feature 1.2 (shadcn/ui init) is the natural next step
+- The PRD mentions oxfmt but it's not a real package yet — oxlint handles what it can. Consider using Prettier or Biome if a dedicated formatter is needed.
+- babel-plugin-react-compiler is included by create-next-app — keep it, it's the React Compiler for Next.js 16

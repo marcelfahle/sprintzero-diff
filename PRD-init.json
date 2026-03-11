@@ -1,0 +1,471 @@
+{
+  "project": "diff.sprintzero.sh",
+  "description": "A SprintZero-branded GitHub Gist viewer that serves as the client-facing deliverable platform. Clean URLs like diff.sprintzero.sh/encappture map to GitHub Gists via a JSON registry. Built from scratch, inspired by gists.sh. Next.js 16, Bun, Tailwind v4, shadcn/ui, Shiki, oxlint, oxfmt. Dark-first design with SprintZero orange accent. Deployed to diff.sprintzero.sh on Vercel.",
+  "repository": "diff.sprintzero.sh",
+  "human_inputs_required": [
+    "GITHUB_TOKEN: GitHub Personal Access Token with `gist` scope. Generate at https://github.com/settings/tokens \u2192 Fine-grained or Classic \u2192 select 'gist' scope only. This raises API rate limit from 60 to 5,000 requests/hour. Set in Vercel environment variables and .env.local for development.",
+    "VERCEL_PROJECT: Create a new Vercel project linked to the diff.sprintzero.sh repo. Add diff.sprintzero.sh as a custom domain in Vercel project settings \u2192 Domains.",
+    "DNS_RECORD: Add CNAME record on sprintzero.sh domain: diff \u2192 cname.vercel-dns.com (or whatever Vercel specifies during domain setup)."
+  ],
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Project scaffold, shadcn/ui, registry, and GitHub API data layer",
+      "features": [
+        {
+          "id": "1.1",
+          "category": "setup",
+          "description": "Initialize Next.js 16 project with Bun, TypeScript, Tailwind v4, and core dependencies",
+          "steps": [
+            "Run: bunx create-next-app@latest diff.sprintzero.sh --typescript --tailwind --app --src-dir --import-alias '@/*' --use-bun",
+            "Remove eslint.config.mjs if generated (we're using oxlint instead)",
+            "Run: bun add -d oxlint oxfmt",
+            "Run: bunx oxlint --init --nextjs-plugin --react-perf-plugin (generates .oxlintrc.json with Next.js + React plugins enabled)",
+            "cd diff.sprintzero.sh",
+            "Run: bun add react-markdown remark-gfm remark-github-blockquote-alert rehype-raw rehype-sanitize rehype-slug rehype-autolink-headings rehype-stringify remark-parse remark-rehype unified unist-util-visit",
+            "Run: bun add shiki @shikijs/rehype gray-matter",
+            "Run: bun add papaparse yaml ical.js",
+            "Run: bun add geist next-themes clsx tailwind-merge lucide-react sonner",
+            "Run: bun add -d @types/papaparse",
+            "Create file: .env.local with GITHUB_TOKEN=<placeholder>",
+            "Create file: .env.local.example with GITHUB_TOKEN=your_github_pat_here",
+            "Update package.json scripts: \"lint\": \"oxlint\", \"fmt\": \"oxfmt --write 'src/**/*.{ts,tsx,js,jsx}'\", \"fmt:check\": \"oxfmt --check 'src/**/*.{ts,tsx,js,jsx}'\"",
+            "Verify: bun dev starts on localhost:3000 without errors"
+          ],
+          "passes": true
+        },
+        {
+          "id": "1.2",
+          "category": "setup",
+          "description": "Initialize shadcn/ui and install required components",
+          "steps": [
+            "Run: bunx shadcn@latest init \u2014 select: New York style, Neutral base color, CSS variables",
+            "Run: bunx shadcn@latest add dropdown-menu",
+            "Run: bunx shadcn@latest add tooltip",
+            "Run: bunx shadcn@latest add tabs",
+            "Run: bunx shadcn@latest add badge",
+            "Run: bunx shadcn@latest add toggle-group (for Pretty/Raw segmented control)",
+            "Verify: Components are generated in src/components/ui/. bun dev still runs."
+          ],
+          "passes": false
+        },
+        {
+          "id": "1.3",
+          "category": "setup",
+          "description": "Configure Tailwind v4, Geist fonts, and SprintZero dark theme",
+          "steps": [
+            "Open file: src/app/layout.tsx",
+            "Import GeistSans and GeistMono from 'geist/font/sans' and 'geist/font/mono'",
+            "Apply font variables to <html> className: `${GeistSans.variable} ${GeistMono.variable}`",
+            "Set <body> className: font-sans bg-neutral-950 text-neutral-100 antialiased",
+            "Open file: src/app/globals.css",
+            "Add @custom-variant dark (&:where(.dark, .dark *));",
+            "Define @theme block: --font-sans using --font-geist-sans, --font-mono using --font-geist-mono",
+            "Define SprintZero accent colors: --color-sz-orange: #f97316; --color-sz-orange-light: #fb923c; --color-sz-orange-dark: #ea580c;",
+            "Update shadcn CSS variables to align with SprintZero dark theme (--primary to sz-orange, --background to neutral-950, etc.)",
+            "Verify: Page renders with dark background and Geist font, shadcn components use correct theme"
+          ],
+          "passes": false
+        },
+        {
+          "id": "1.4",
+          "category": "functional",
+          "description": "Create the deliverables registry \u2014 JSON config mapping clean slugs to gist IDs",
+          "steps": [
+            "Create file: src/lib/registry.ts",
+            "Define TypeScript interface DeliverableProject: { gistId: string, name: string, date?: string }",
+            "Define interface DeliverableCustomer: { name: string, default?: string, projects: Record<string, DeliverableProject> }",
+            "Define interface DeliverableRegistry: Record<string, DeliverableCustomer>",
+            "Create file: deliverables.json at project root with initial structure:",
+            "  { \"encappture\": { \"name\": \"Encappture\", \"default\": \"cms-modernization\", \"projects\": { \"cms-modernization\": { \"gistId\": \"PLACEHOLDER\", \"name\": \"CMS React Modernization\", \"date\": \"2026-03\" } } } }",
+            "In registry.ts, import deliverables.json and export as typed DeliverableRegistry",
+            "Implement resolveSlug(slugParts: string[]): { gistId: string, customer?: DeliverableCustomer, project?: DeliverableProject } | null",
+            "Resolution logic: (1) single segment matching customer slug with default project \u2192 resolve default gist ID. (2) single segment that is hex 20/32 chars \u2192 raw gist ID (direct/dev access). (3) two segments [customer, project] \u2192 look up both \u2192 gist ID. (4) no match \u2192 null.",
+            "Export helper: getCustomerByGistId(gistId: string) \u2014 reverse lookup for footer metadata",
+            "Verify: resolveSlug(['encappture']) returns gist ID. resolveSlug(['encappture', 'cms-modernization']) returns same. resolveSlug(['abc123def456789012345678']) returns raw ID. resolveSlug(['nonexistent']) returns null."
+          ],
+          "passes": false
+        },
+        {
+          "id": "1.5",
+          "category": "api",
+          "description": "Implement GitHub Gist API data layer with types and fetch functions",
+          "steps": [
+            "Create file: src/lib/github.ts",
+            "Define TypeScript interface GistFile: filename, type, language (string|null), raw_url, size, content",
+            "Define interface GistOwner: login, avatar_url, html_url",
+            "Define interface Gist: id, description (string|null), public (boolean), files (Record<string, GistFile>), owner (GistOwner|null), created_at, updated_at, html_url",
+            "Define interface GitHubUser: login, avatar_url, html_url, name (string|null), bio (string|null), blog (string|null), twitter_username (string|null), location (string|null)",
+            "Implement getGitHubHeaders() returning Authorization bearer from process.env.GITHUB_TOKEN",
+            "Implement fetchGist(gistId: string): Promise<Gist|null> \u2014 GET api.github.com/gists/{gistId} with next: { revalidate: 86400, tags: [`gist-${gistId}`] }. Validate hex 20/32. Null on 404. Throw on rate limit.",
+            "Implement fetchUser(username: string): Promise<GitHubUser|null> \u2014 GET api.github.com/users/{username} with next: { revalidate: 86400 }",
+            "Implement file type detection: isMarkdown, isJSON, isYAML, isCSV, isICS, isPlainText, isStructuredData, getFileExtension, getMimeType",
+            "Verify: fetchGist with a known public gist ID returns data"
+          ],
+          "passes": false
+        },
+        {
+          "id": "1.6",
+          "category": "api",
+          "description": "Implement API routes: raw content and cache refresh",
+          "steps": [
+            "Create file: src/app/api/raw/[gistId]/route.ts",
+            "GET handler: fetch gist, extract file by ?file param or first file, return with correct Content-Type",
+            "Create file: src/app/api/refresh/[gistId]/route.ts",
+            "POST handler: revalidateTag(`gist-${gistId}`), return 200",
+            "Rate limit: in-memory Map, reject 429 if within 60 seconds",
+            "Verify: POST /api/refresh/{gistId} returns 200, repeat within 60s returns 429"
+          ],
+          "passes": false
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Core renderers: Markdown, Code, Structured Data",
+      "features": [
+        {
+          "id": "2.1",
+          "category": "functional",
+          "description": "Implement Markdown renderer with GFM, alerts, frontmatter tables, and heading anchors",
+          "steps": [
+            "Create file: src/components/markdown-renderer.tsx",
+            "Import react-markdown, remark-gfm, remark-github-blockquote-alert, rehype-raw, rehype-sanitize, rehype-slug, rehype-autolink-headings, gray-matter",
+            "If frontmatter exists, render as styled key-value card using shadcn Badge for labels and a dark card (neutral-800/900 bg)",
+            "Configure react-markdown with all plugins. Apply 'markdown-body' CSS class",
+            "Add .markdown-body styles to globals.css: prose 0.9375rem, line-height 1.75, styled headings/paragraphs/links (sz-orange for links)/code/blockquotes/tables/lists/hr/images",
+            "Import remark-github-blockquote-alert/alert.css, override for dark theme (NOTE=blue, TIP=green, IMPORTANT=sz-orange, WARNING=yellow, CAUTION=red)",
+            "Verify: Markdown with frontmatter, headings, GFM alerts, code block, table, link all render correctly"
+          ],
+          "passes": false
+        },
+        {
+          "id": "2.2",
+          "category": "functional",
+          "description": "Implement Shiki code renderer with per-block copy buttons",
+          "steps": [
+            "Create file: src/lib/shiki.ts \u2014 highlightCode(code, lang) with dark theme, getShikiLang(filename, language) mapper",
+            "Create file: src/components/code-renderer.tsx \u2014 server component, calls highlightCode, dangerouslySetInnerHTML",
+            "Create file: src/components/code-block-enhancer.tsx \u2014 client wrapper injecting copy buttons on every <pre>",
+            "Create file: src/components/copy-button.tsx \u2014 clipboard icon \u2192 checkmark, 2s reset. Use lucide-react icons.",
+            "Style: rounded-lg, border neutral-800, bg neutral-900, font-mono text-sm, overflow-x-auto",
+            "Verify: TypeScript snippet has syntax highlighting, copy button works"
+          ],
+          "passes": false
+        },
+        {
+          "id": "2.3",
+          "category": "functional",
+          "description": "Implement JSON tree viewer with collapsible nodes and Pretty/Raw toggle",
+          "steps": [
+            "Create file: src/components/renderers/data-tree-viewer.tsx \u2014 shared recursive tree for JSON/YAML",
+            "Style: keys neutral-400, strings green-400, numbers sz-orange, booleans blue-400, null neutral-500, 1.5rem indent, chevron icons",
+            "Create file: src/components/renderers/json-viewer.tsx \u2014 parse JSON, pass to DataTreeViewer",
+            "Create file: src/components/renderers/structured-file-viewer.tsx \u2014 wrapper with shadcn ToggleGroup for Pretty|Raw",
+            "Verify: Nested JSON is collapsible tree, Raw shows Shiki-highlighted source"
+          ],
+          "passes": false
+        },
+        {
+          "id": "2.4",
+          "category": "functional",
+          "description": "Implement YAML tree viewer",
+          "steps": [
+            "Create file: src/components/renderers/yaml-viewer.tsx \u2014 parse with 'yaml' package, pass to DataTreeViewer",
+            "Wrap in StructuredFileViewer for Pretty/Raw toggle",
+            "Verify: YAML renders as tree, Raw shows highlighted YAML"
+          ],
+          "passes": false
+        },
+        {
+          "id": "2.5",
+          "category": "functional",
+          "description": "Implement CSV/TSV sortable table viewer",
+          "steps": [
+            "Create file: src/components/renderers/csv-viewer.tsx \u2014 PapaParse, detect TSV by extension",
+            "Render HTML table: sticky header, alternating rows (neutral-900/neutral-950), horizontal scroll",
+            "Click-to-sort column headers with arrow indicator",
+            "Wrap in StructuredFileViewer for Pretty/Raw toggle",
+            "Verify: CSV sorts correctly, scrolls on narrow viewports"
+          ],
+          "passes": false
+        },
+        {
+          "id": "2.6",
+          "category": "functional",
+          "description": "Implement ICS/iCal calendar event card viewer",
+          "steps": [
+            "Create file: src/components/renderers/ics-viewer.tsx \u2014 parse with ical.js, render VEVENT cards",
+            "Style: neutral-800 bg, rounded-lg, border neutral-700",
+            "Wrap in StructuredFileViewer for Pretty/Raw toggle",
+            "Verify: ICS with 2-3 events renders formatted cards"
+          ],
+          "passes": false
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Gist page shell: tabs, copy buttons, footer, catch-all route",
+      "features": [
+        {
+          "id": "3.1",
+          "category": "ui",
+          "description": "Build multi-file tab system using shadcn Tabs",
+          "steps": [
+            "Create file: src/components/file-tabs.tsx",
+            "Use shadcn Tabs component (TabsList + TabsTrigger)",
+            "Props: filenames (string[]), activeFile (string), basePath (string)",
+            "Monospace font for filenames. Active trigger: sz-orange underline, text neutral-100. Inactive: neutral-500",
+            "Tab click updates ?file= search param (client-side)",
+            "Single file: don't render tabs",
+            "Verify: Multi-file gist shows tabs, switching works, URL updates"
+          ],
+          "passes": false
+        },
+        {
+          "id": "3.2",
+          "category": "ui",
+          "description": "Build page-level copy button dropdown with keyboard shortcuts",
+          "steps": [
+            "Create file: src/components/page-copy-buttons.tsx \u2014 client component",
+            "Use shadcn DropdownMenu (DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator)",
+            "Trigger: Copy icon, checkmark on success",
+            "Items: Copy raw (C), Copy formatted (F, md only), Download (D), Copy link (L), separator, Open source gist (O), separator, Refresh (R)",
+            "Keyboard shortcuts on document keydown, skip in inputs/contenteditable/modifiers",
+            "Copy formatted: clone #gist-content innerHTML, strip injected copy buttons",
+            "Download: Blob \u2192 object URL \u2192 trigger",
+            "Refresh: POST /api/refresh/{gistId}, router.refresh(), sonner toast",
+            "Verify: All 7 actions work from dropdown and keyboard"
+          ],
+          "passes": false
+        },
+        {
+          "id": "3.3",
+          "category": "ui",
+          "description": "Build SprintZero engagement footer with registry metadata",
+          "steps": [
+            "Create file: src/components/engagement-footer.tsx",
+            "Props: customerName?, projectName?, deliveryDate?, gistHtmlUrl",
+            "Layout: border-t neutral-800, flex row: SprintZero wordmark (link to sprintzero.sh) left, metadata right",
+            "Below: 'View source gist' left \u2192 gist.github.com, 'Sprint Zero \u00b7 2026' right, neutral-500 text-xs",
+            "Verify: Renders cleanly with and without metadata"
+          ],
+          "passes": false
+        },
+        {
+          "id": "3.4",
+          "category": "functional",
+          "description": "Build GistClientShell \u2014 main page wrapper",
+          "steps": [
+            "Create file: src/components/gist-client-shell.tsx \u2014 client component",
+            "Props: filenames, fileData[], gistDescription, gistHtmlUrl, gistId, basePath, engagementFooter (ReactNode), children",
+            "Read URL search params: ?file, ?noheader, ?nofooter, ?mono, ?theme",
+            "Active file from ?file or first",
+            "Render: header (description + copy buttons) \u2192 tabs \u2192 content panels (show active, hide others) \u2192 engagement footer \u2192 site footer",
+            "id='gist-content' on content div, wrap in CodeBlockEnhancer",
+            "Respect ?noheader, ?nofooter, ?mono",
+            "Verify: Full page renders, URL params hide/show correctly"
+          ],
+          "passes": false
+        },
+        {
+          "id": "3.5",
+          "category": "functional",
+          "description": "Build the catch-all route with slug resolution",
+          "steps": [
+            "Create file: src/app/[...slug]/page.tsx \u2014 server component",
+            "Extract slug array from params, call resolveSlug()",
+            "If null \u2192 notFound()",
+            "fetchGist(gistId), if null \u2192 notFound()",
+            "Extract files, detect types, pre-render ALL panels in parallel (Promise.all)",
+            "Parse frontmatter from first markdown file for extra metadata",
+            "Build footer props: merge registry metadata + frontmatter",
+            "Pass to GistClientShell with basePath",
+            "generateMetadata: resolve slug, fetch gist, build title/description/OG. Title: '{Project Name} \u00b7 Sprint Zero'",
+            "Create file: src/app/[...slug]/not-found.tsx \u2014 'Deliverable not found' + link to sprintzero.sh",
+            "Set export const revalidate = 86400",
+            "Verify: /encappture resolves and renders. /encappture/cms-modernization works. /{hex-id} works. /nonexistent 404s."
+          ],
+          "passes": false
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Theme polish, OG images, homepage, production config",
+      "features": [
+        {
+          "id": "4.1",
+          "category": "ui",
+          "description": "Implement dark-first theme with flash-free initialization",
+          "steps": [
+            "Create file: src/components/providers.tsx \u2014 ThemeProvider, defaultTheme='dark', enableSystem, attribute='class', forcedTheme from ?theme",
+            "layout.tsx <head>: inline <style> for dark bg/color before paint, inline <script> for ?theme class resolution",
+            "suppressHydrationWarning on <html>, <Toaster /> from sonner in layout",
+            "Verify: No white flash. ?theme=light forces light mode."
+          ],
+          "passes": false
+        },
+        {
+          "id": "4.2",
+          "category": "seo",
+          "description": "Implement dynamic OG image generation",
+          "steps": [
+            "Create file: src/app/[...slug]/opengraph-image.tsx \u2014 next/og ImageResponse 1200x630",
+            "Dark bg, SprintZero wordmark in orange, gist title white, content preview neutral-400",
+            "Create file: src/app/opengraph-image.tsx \u2014 default homepage OG",
+            "Verify: OG image renders correctly at opengraph.xyz"
+          ],
+          "passes": false
+        },
+        {
+          "id": "4.3",
+          "category": "ui",
+          "description": "Build minimal homepage",
+          "steps": [
+            "src/app/page.tsx: minimal dark page, SprintZero wordmark, 'diff.sprintzero.sh' heading, 'Client deliverables by Sprint Zero' subtitle, link to sprintzero.sh",
+            "Verify: localhost:3000 renders clean homepage"
+          ],
+          "passes": false
+        },
+        {
+          "id": "4.4",
+          "category": "setup",
+          "description": "Production config: security headers, image domains, robots.txt",
+          "steps": [
+            "next.config.ts: images.remotePatterns for avatars.githubusercontent.com, security headers (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy, Strict-Transport-Security)",
+            "Create file: src/app/robots.txt/route.ts",
+            "Verify: bun run build succeeds, response headers correct"
+          ],
+          "passes": false
+        }
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Deploy and test with real deliverable",
+      "features": [
+        {
+          "id": "5.1",
+          "category": "setup",
+          "description": "Push to GitHub and deploy to Vercel",
+          "steps": [
+            "Run: git init && git add -A && git commit -m 'Initial commit: diff.sprintzero.sh'",
+            "Create private GitHub repo: marcelfahle/diff.sprintzero.sh",
+            "Run: git remote add origin git@github.com:marcelfahle/diff.sprintzero.sh.git && git push -u origin main",
+            "Import in Vercel, set GITHUB_TOKEN env var, deploy",
+            "Add diff.sprintzero.sh domain in Vercel, add DNS CNAME",
+            "Verify: https://diff.sprintzero.sh loads homepage"
+          ],
+          "passes": false
+        },
+        {
+          "id": "5.2",
+          "category": "testing",
+          "description": "Create sample deliverable and test end-to-end",
+          "steps": [
+            "Create multi-file secret gist: README.md (frontmatter + GFM alerts), TECHNICAL.md, SECURITY.md, metrics.json, metrics.csv",
+            "Run: gh gist create README.md TECHNICAL.md SECURITY.md metrics.json metrics.csv -d 'Sample \u00b7 Stack Modernization \u00b7 March 2026'",
+            "Update deliverables.json with gist ID, commit, push",
+            "After deploy: open https://diff.sprintzero.sh/encappture",
+            "Verify: All tabs render. Alerts styled. JSON collapsible. CSV sortable. Copy works. Footer has metadata. OG image correct.",
+            "Also verify: /encappture/cms-modernization and /{raw-gist-id} both work"
+          ],
+          "passes": false
+        },
+        {
+          "id": "5.3",
+          "category": "testing",
+          "description": "Test refresh flow and URL parameters",
+          "steps": [
+            "Edit gist: gh gist edit {gistId}",
+            "Bust cache: curl -s -X POST https://diff.sprintzero.sh/api/refresh/{gistId}",
+            "Verify updated content at /encappture",
+            "Test: ?theme=light, ?noheader, ?nofooter, ?mono, ?file=TECHNICAL.md",
+            "Verify all params work"
+          ],
+          "passes": false
+        }
+      ]
+    },
+    {
+      "phase": 6,
+      "name": "Agent skill, templates, and first real deliverable",
+      "features": [
+        {
+          "id": "6.1",
+          "category": "documentation",
+          "description": "Create deliverable templates for each standard tab",
+          "steps": [
+            "Create directory: templates/",
+            "Create file: templates/README.md \u2014 Executive summary: frontmatter (client, engagement, delivered, sprint_duration, lead, status), GFM alerts for metrics, What Changed, Why It Matters, What's Next",
+            "Create file: templates/TECHNICAL.md \u2014 Architecture Decisions, Migration Summary table, Before/After code, Deferred Work, Next Steps",
+            "Create file: templates/SECURITY.md \u2014 Vulnerability Summary by severity, Remediations table, Remaining Risk, Recommendations",
+            "Create file: templates/TESTING.md \u2014 Coverage Summary, E2E Tests table, How to Run, How to Extend",
+            "Create file: templates/AI-SETUP.md \u2014 Installed Tools, Custom Skills, Workflows, Tips",
+            "Verify: Each template is valid markdown with realistic placeholder content"
+          ],
+          "passes": false
+        },
+        {
+          "id": "6.2",
+          "category": "documentation",
+          "description": "Write Claude Code agent skill for publishing deliverables",
+          "steps": [
+            "Create file: skills/publish-diff/SKILL.md",
+            "Triggers: 'publish deliverable', 'create diff', 'share engagement report'",
+            "Workflow: (1) prepare files from templates, (2) gh gist create -d (always secret), (3) update deliverables.json with slug \u2192 gist ID, (4) commit + push, (5) warm cache: curl diff.sprintzero.sh/{customer}, (6) present URL",
+            "Document slug conventions (lowercase-kebab), frontmatter fields, GFM alert conventions",
+            "Rules: always SECRET, always -d, always warm cache, always update registry",
+            "Verify: An AI agent could follow the skill end-to-end"
+          ],
+          "passes": false
+        },
+        {
+          "id": "6.3",
+          "category": "functional",
+          "description": "Write and publish the Encappture deliverable",
+          "steps": [
+            "Create 5 files from templates + Encappture executive summary:",
+            "README.md: Real metrics (194\u219229 vulns, 82\u21920 connect, 11\u21920 sagas, CRA\u2192Vite)",
+            "TECHNICAL.md: RTK Query migration, saga reduction, component modernization",
+            "SECURITY.md: react-scripts removed, axios upgraded, echarts removed, moment upgraded",
+            "TESTING.md: Playwright E2E, route-by-route verification",
+            "AI-SETUP.md: Custom skills and workflows for modernized stack",
+            "Run: gh gist create README.md TECHNICAL.md SECURITY.md TESTING.md AI-SETUP.md -d 'Encappture \u00b7 CMS React Modernization \u00b7 March 2026'",
+            "Update deliverables.json, commit, push, warm cache",
+            "Verify: https://diff.sprintzero.sh/encappture looks professional enough to send to a CTO"
+          ],
+          "passes": false
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "final_checks": [
+      "bun run build completes with zero errors",
+      "bunx oxlint passes (zero warnings)",
+      "bunx oxfmt --check passes (all files formatted)",
+      "No TypeScript errors (bunx tsc --noEmit)",
+      "diff.sprintzero.sh loads in production with valid SSL",
+      "diff.sprintzero.sh/encappture resolves via registry",
+      "diff.sprintzero.sh/encappture/cms-modernization resolves to same gist",
+      "diff.sprintzero.sh/{raw-hex-gist-id} resolves via direct access",
+      "diff.sprintzero.sh/nonexistent shows 404",
+      "Multi-file gist renders with shadcn Tabs working",
+      "Markdown: frontmatter table, GFM alerts (dark themed), Shiki code highlighting, heading anchors",
+      "Code blocks: Shiki highlighting, per-block copy buttons",
+      "JSON: collapsible tree with shadcn ToggleGroup Pretty/Raw",
+      "CSV: sortable table with Pretty/Raw toggle",
+      "shadcn DropdownMenu copy actions: raw, formatted, download, link, open source, refresh",
+      "Keyboard shortcuts: c, d, f, l, o, r",
+      "Engagement footer shows customer name and delivery date from registry",
+      "OG image generates correctly",
+      "URL params: ?theme=light, ?noheader, ?nofooter, ?mono, ?file= all work",
+      "POST /api/refresh/{gistId} busts cache",
+      "No white flash on load",
+      "Encappture deliverable published and accessible at /encappture"
+    ]
+  }
+}
