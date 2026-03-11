@@ -92,3 +92,25 @@ Notes for next person:
 - To add a new customer: add entry to deliverables.json with slug key, name, optional default project, and projects map
 - The hex regex validates 20-32 character hex strings for raw gist IDs
 - getCustomerByGistId iterates all customers/projects — fine for small registries, optimize if it grows large
+
+## Feature 1.5 - GitHub Gist API Data Layer [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/lib/github.ts with full TypeScript interfaces: GistFile, GistOwner, Gist, GitHubUser
+- Implemented getGitHubHeaders() — reads GITHUB_TOKEN from env, adds Authorization bearer header when present
+- Implemented fetchGist(gistId) — validates hex 20-32 chars, GET api.github.com/gists/{gistId}, next revalidate 86400 with cache tags, null on 404, throws on rate limit (403/429)
+- Implemented fetchUser(username) — GET api.github.com/users/{username}, next revalidate 86400, null on 404
+- Implemented complete file type detection suite: isMarkdown, isJSON, isYAML, isCSV, isICS, isPlainText, isStructuredData, getFileExtension, getMimeType
+- getMimeType covers 20+ extensions including markdown, structured data, code, images, and web formats
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors
+- `bunx tsc --noEmit` passes with no type errors
+
+Notes for next person:
+- Feature 1.6 (API routes: raw content and cache refresh) is the natural next step
+- fetchGist uses Next.js fetch cache with `next: { revalidate, tags }` — works with revalidateTag() for on-demand cache busting
+- GITHUB_TOKEN is optional — requests work without it but are limited to 60 req/hour (vs 5,000 with token)
+- The GIST_ID_RE regex (same as registry.ts) validates gist IDs before making API calls to avoid unnecessary requests
+- All fetch functions return null on 404 for easy notFound() integration in page components

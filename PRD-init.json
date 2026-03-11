@@ -102,7 +102,7 @@
             "Implement file type detection: isMarkdown, isJSON, isYAML, isCSV, isICS, isPlainText, isStructuredData, getFileExtension, getMimeType",
             "Verify: fetchGist with a known public gist ID returns data"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "1.6",
