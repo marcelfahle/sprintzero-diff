@@ -422,7 +422,7 @@
             "Rules: always SECRET, always -d, always warm cache, always update registry",
             "Verify: An AI agent could follow the skill end-to-end"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "6.3",

@@ -602,3 +602,30 @@ Notes for next person:
 - Phase 5 (5.1, 5.2, 5.3) still requires human actions: Vercel project creation, DNS CNAME, GITHUB_TOKEN env var
 - Templates are in templates/ at project root — not in src/ since they're not app code, they're content templates for the publishing workflow
 - The {{PLACEHOLDER}} convention makes it easy for both humans and AI agents to fill in values
+
+## Feature 6.2 - Claude Code Agent Skill for Publishing Deliverables [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created skills/publish-diff/ directory structure
+- Created skills/publish-diff/SKILL.md — comprehensive agent skill document for publishing deliverables
+  - Triggers: "publish deliverable", "create diff", "share engagement report", "publish to diff"
+  - 6-step workflow: (1) prepare files from templates, (2) gh gist create -d (always secret), (3) update deliverables.json with slug → gist ID, (4) commit + push, (5) warm cache via curl, (6) present URL
+  - Documented slug conventions: lowercase kebab-case for both customer and project slugs
+  - Documented frontmatter fields: client, engagement, delivered, sprint_duration, lead, status
+  - Documented GFM alert conventions: NOTE, TIP, IMPORTANT, WARNING, CAUTION with their intended use
+  - 7 rules: always secret, always -d, always warm cache, always update registry, README.md required, use GFM alerts, kebab-case slugs
+  - URL reference table: customer default, customer/project, hex gist ID patterns
+  - Update workflow: gh gist edit + POST /api/refresh for existing deliverables
+  - Registry JSON schema documented with example
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 41 files
+- Skill document is comprehensive enough for an AI agent to follow end-to-end
+
+Notes for next person:
+- Feature 6.3 (Encappture deliverable) is the natural next step — depends on Phase 5 (deployment) being complete
+- Phase 5 (5.1, 5.2, 5.3) still requires human actions: Vercel project creation, DNS CNAME, GITHUB_TOKEN env var
+- The skill is at skills/publish-diff/SKILL.md — Claude Code will discover it when triggered by the listed phrases
+- The skill references templates/ for file preparation and deliverables.json for registry updates
+- All Phase 1-4 features complete. Phase 2 complete. Phase 6: 6.1 and 6.2 complete, 6.3 pending (needs deployment)
