@@ -221,7 +221,7 @@
             "Single file: don't render tabs",
             "Verify: Multi-file gist shows tabs, switching works, URL updates"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "3.2",

@@ -235,3 +235,28 @@ Notes for next person:
 - StructuredFileViewer is reusable for any Pretty/Raw toggle — CSV (2.5) and ICS (2.6) will use it too
 - The shadcn ToggleGroup from base-ui uses array values, not type="single". Use value={[mode]} and extract from onValueChange array.
 - JsonViewer splits into server (json-viewer.tsx) and client (json-viewer-client.tsx) to pre-render Shiki highlighting on the server while keeping toggle state client-side
+
+## Feature 3.1 - Multi-File Tab System [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/components/file-tabs.tsx — client component using shadcn Tabs with base-ui
+- Uses variant="line" for underline-style tabs (no background pill)
+- Props: filenames (string[]), activeFile (string)
+- Monospace font (font-mono text-xs) for filenames
+- Active tab: sz-orange underline (data-active:after:bg-sz-orange), text neutral-100
+- Inactive tabs: text neutral-500, hover neutral-300
+- Tab click updates ?file= search param via Next.js useRouter/useSearchParams
+- If first file selected, ?file= param is removed (clean URL)
+- Single file: returns null (no tabs rendered)
+- Uses router.replace with scroll: false for smooth client-side transitions
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 26 files
+
+Notes for next person:
+- Prioritized 3.1 over 2.4-2.6 because Phase 3 is the critical path to a working app. The remaining Phase 2 renderers (YAML, CSV, ICS) are enhancements but not blocking.
+- The basePath prop from the PRD was dropped — it's not needed since tabs use ?file= search params on the current path
+- The base-ui Tabs onValueChange callback receives (value: string | number | null), not just string — handle accordingly
+- FileTabs is wrapped in Suspense boundary needed for useSearchParams in Next.js 16 — the parent (GistClientShell in 3.4) should provide this
+- Next features on the critical path: 3.2 (copy buttons), 3.3 (footer), 3.4 (shell), 3.5 (catch-all route)
