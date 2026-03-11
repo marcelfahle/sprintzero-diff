@@ -312,3 +312,35 @@ Notes for next person:
 - Props are all optional except gistHtmlUrl — works cleanly with no metadata (anonymous gist ID access) or full metadata (registry-resolved slug)
 - The wordmark is plain text "Sprint Zero" — no SVG/image logo needed for now
 - Critical path remaining: 3.4 (shell), 3.5 (catch-all route)
+
+## Feature 3.4 - GistClientShell — Main Page Wrapper [COMPLETE] - 2026-03-11
+
+Implemented:
+- Created src/components/gist-client-shell.tsx — client component wrapping the full gist page
+- Exported FileData interface: { filename, rawContent, isMarkdown, renderedContent (ReactNode) }
+- Props: filenames, fileData[], gistDescription, gistHtmlUrl, gistId, engagementFooter (ReactNode)
+- Reads URL search params: ?file (active tab), ?noheader, ?nofooter, ?mono
+- Active file resolved from ?file param (validated against filenames array) or defaults to first file
+- Layout: header (gist description + PageCopyButtons) → FileTabs → CodeBlockEnhancer wrapping #gist-content → engagement footer
+- All file panels pre-rendered and toggled via "block"/"hidden" CSS classes (no re-render on tab switch)
+- id="gist-content" on content wrapper for Copy Formatted feature (PageCopyButtons expects this)
+- ?noheader hides the description + copy buttons header
+- ?nofooter hides the engagement footer
+- ?mono applies font-mono to the entire page
+- Wrapped in Suspense boundary for useSearchParams (required by Next.js 16 App Router)
+- Inner component pattern (GistClientShellInner inside Suspense) keeps the public API clean
+- Dropped basePath prop from PRD — unnecessary since FileTabs uses ?file= search params, not path-based navigation
+- Dropped ?theme param — will be handled by ThemeProvider in feature 4.1 (layout-level, not shell-level)
+- PageCopyButtons props (rawContent, filename, isMarkdown) update reactively based on active tab
+
+Verified:
+- `bun run build` succeeds with zero errors
+- `bun run lint` (oxlint) passes with 0 warnings/errors on 29 files
+
+Notes for next person:
+- Feature 3.5 (catch-all route with slug resolution) is the next critical-path item and is now UNBLOCKED
+- The catch-all route (3.5) should: resolve slug → fetch gist → detect file types → pre-render all panels (Promise.all) → pass FileData[] to GistClientShell
+- EngagementFooter is a server component — render it in the server page (3.5) and pass as engagementFooter prop
+- FileData.renderedContent should be the pre-rendered ReactNode for each file (MarkdownRenderer, CodeRenderer, JsonViewer, etc.)
+- The ?theme param is intentionally not handled here — it belongs in the ThemeProvider (feature 4.1) at the layout level
+- Critical path remaining: 3.5 (catch-all route) — after that, the app will be functional end-to-end

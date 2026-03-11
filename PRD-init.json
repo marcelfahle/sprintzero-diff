@@ -267,7 +267,7 @@
             "Respect ?noheader, ?nofooter, ?mono",
             "Verify: Full page renders, URL params hide/show correctly"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "3.5",
