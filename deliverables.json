@@ -10,12 +10,12 @@
       }
     }
   },
-  "encappture": {
+  "encappture-cms": {
     "name": "Encappture",
     "default": "cms-modernization",
     "projects": {
       "cms-modernization": {
-        "gistId": "PLACEHOLDER",
+        "gistId": "f19b26338c81efbbc353bcdfea97b966",
         "name": "CMS React Modernization",
         "date": "2026-03"
       }
