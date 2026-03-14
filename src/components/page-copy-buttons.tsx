@@ -208,12 +208,6 @@ export function PageCopyButtons({
           <DropdownMenuShortcut>L</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={openSource}>
-          <ExternalLink className="h-4 w-4" />
-          Open source gist
-          <DropdownMenuShortcut>O</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={refresh} disabled={refreshing}>
           <RefreshCw
             className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}

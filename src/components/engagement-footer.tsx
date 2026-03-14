@@ -42,15 +42,6 @@ export function EngagementFooter({
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-neutral-500">
-        <a
-          href={gistHtmlUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 transition-colors hover:text-neutral-300"
-        >
-          View source gist
-          <ExternalLink className="h-3 w-3" />
-        </a>
         <span>
           Sprint Zero &middot; {new Date().getFullYear()}
         </span>
