@@ -19,6 +19,13 @@
         "name": "CMS React Modernization",
         "date": "2026-03"
       }
+    },
+    "branding": {
+      "company": "FounderWell",
+      "accentColor": "#0d9488",
+      "accentColorLight": "#2dd4bf",
+      "accentColorDark": "#0f766e",
+      "url": "https://founderwell.com"
     }
   }
 }

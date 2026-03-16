@@ -10,9 +10,6 @@ export default function Home() {
       <h1 className="text-center font-mono text-3xl font-bold tracking-tight text-neutral-100 sm:text-4xl">
         diff.sprintzero.sh
       </h1>
-      <p className="mt-4 text-center text-neutral-500">
-        Client deliverables by Sprint Zero
-      </p>
     </div>
   );
 }

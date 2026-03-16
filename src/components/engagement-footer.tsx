@@ -5,6 +5,8 @@ interface EngagementFooterProps {
   projectName?: string;
   deliveryDate?: string;
   gistHtmlUrl: string;
+  brandingCompany?: string;
+  brandingUrl?: string;
 }
 
 export function EngagementFooter({
@@ -12,6 +14,8 @@ export function EngagementFooter({
   projectName,
   deliveryDate,
   gistHtmlUrl,
+  brandingCompany = "Sprint Zero",
+  brandingUrl = "https://sprintzero.sh",
 }: EngagementFooterProps) {
   const hasMetadata = customerName || projectName || deliveryDate;
 
@@ -20,12 +24,12 @@ export function EngagementFooter({
       {hasMetadata && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <a
-            href="https://sprintzero.sh"
+            href={brandingUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm font-medium text-neutral-300 transition-colors hover:text-sz-orange"
           >
-            Sprint Zero
+            {brandingCompany}
           </a>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-neutral-400">
             {customerName && <span>{customerName}</span>}
@@ -43,7 +47,7 @@ export function EngagementFooter({
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-neutral-500">
         <span>
-          Sprint Zero &middot; {new Date().getFullYear()}
+          {brandingCompany} &middot; {new Date().getFullYear()}
         </span>
       </div>
     </footer>

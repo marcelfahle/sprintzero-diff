@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { resolveSlug, getCustomerByGistId } from "@/lib/registry";
 import { fetchGist, isMarkdown } from "@/lib/github";
+import { resolveTheme } from "@/lib/theme";
 import matter from "gray-matter";
 
 async function loadFont(filename: string): Promise<ArrayBuffer> {
@@ -32,12 +33,18 @@ export async function GET(request: NextRequest) {
   let title = "diff.sprintzero.sh";
   let description = "Client deliverables by Sprint Zero";
   let customerName: string | undefined;
+  let accentColor = "#f97316";
+  let brandCompany = "Sprint Zero";
 
   if (slugParam) {
     const slug = slugParam.split("/");
     const resolved = resolveSlug(slug);
 
     if (resolved) {
+      const theme = resolveTheme(resolved.customer);
+      accentColor = theme.accentColor;
+      brandCompany = theme.company;
+
       const gist = await fetchGist(resolved.gistId);
       if (gist) {
         if (resolved.project) {
@@ -99,11 +106,11 @@ export async function GET(request: NextRequest) {
             style={{
               fontSize: "24px",
               fontWeight: 700,
-              color: "#f97316",
+              color: accentColor,
               letterSpacing: "0.05em",
             }}
           >
-            Sprint Zero
+            {brandCompany}
           </span>
           <span style={{ fontSize: "24px", color: "#525252" }}>/</span>
           <span style={{ fontSize: "24px", color: "#a3a3a3" }}>diff</span>

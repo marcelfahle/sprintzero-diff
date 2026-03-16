@@ -199,7 +199,7 @@
 
 /* Links */
 .markdown-body a:not(.heading-anchor) {
-  color: #f97316;
+  color: var(--color-sz-orange);
   text-decoration: none;
 }
 
@@ -352,13 +352,13 @@
   color: #22c55e;
 }
 
-/* IMPORTANT — sz-orange */
+/* IMPORTANT — brand accent */
 .markdown-alert-important {
-  border-left-color: #f97316;
-  background: rgba(249, 115, 22, 0.05);
+  border-left-color: var(--color-sz-orange);
+  background: color-mix(in srgb, var(--color-sz-orange) 5%, transparent);
 }
 .markdown-alert-important .markdown-alert-title {
-  color: #f97316;
+  color: var(--color-sz-orange);
 }
 
 /* WARNING — yellow */

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import matter from "gray-matter";
 import { resolveSlug, getCustomerByGistId } from "@/lib/registry";
+import { resolveTheme, buildThemeStyleOverrides } from "@/lib/theme";
 import { fetchGist, isMarkdown, isJSON, isYAML, isCSV, isICS } from "@/lib/github";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
 import { CodeRenderer } from "@/components/code-renderer";
@@ -60,15 +61,17 @@ export async function generateMetadata({
 
   const { gist, resolved } = result;
 
+  const theme = resolveTheme(resolved.customer);
+
   let title = "diff.sprintzero.sh";
   if (resolved.project) {
-    title = `${resolved.project.name} \u00b7 Sprint Zero`;
+    title = `${resolved.project.name} \u00b7 ${theme.company}`;
   } else if (gist.description) {
-    title = `${gist.description} \u00b7 Sprint Zero`;
+    title = `${gist.description} \u00b7 ${theme.company}`;
   }
 
   const description =
-    gist.description || "Client deliverable by Sprint Zero";
+    gist.description || `Client deliverable by ${theme.company}`;
 
   const ogImageUrl = `/api/og?slug=${encodeURIComponent(slug.join("/"))}`;
 
@@ -145,12 +148,17 @@ export default async function GistPage({ params }: PageProps) {
   const deliveryDate =
     registryInfo?.project.date || frontmatterMeta.delivered || undefined;
 
+  const theme = resolveTheme(resolved.customer);
+  const themeStyleOverrides = buildThemeStyleOverrides(theme);
+
   const engagementFooter = (
     <EngagementFooter
       customerName={customerName}
       projectName={projectName}
       deliveryDate={deliveryDate}
       gistHtmlUrl={gist.html_url}
+      brandingCompany={theme.company}
+      brandingUrl={theme.url}
     />
   );
 
@@ -162,6 +170,7 @@ export default async function GistPage({ params }: PageProps) {
       gistHtmlUrl={gist.html_url}
       gistId={gist.id}
       engagementFooter={engagementFooter}
+      themeStyleOverrides={themeStyleOverrides}
     />
   );
 }

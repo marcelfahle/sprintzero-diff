@@ -20,6 +20,7 @@ interface GistClientShellProps {
   gistHtmlUrl: string;
   gistId: string;
   engagementFooter: ReactNode;
+  themeStyleOverrides?: Record<string, string>;
 }
 
 function GistClientShellInner({
@@ -29,6 +30,7 @@ function GistClientShellInner({
   gistHtmlUrl,
   gistId,
   engagementFooter,
+  themeStyleOverrides,
 }: GistClientShellProps) {
   const searchParams = useSearchParams();
   const fileParam = searchParams.get("file");
@@ -40,7 +42,7 @@ function GistClientShellInner({
   const activeFileData = fileData.find((f) => f.filename === activeFile) ?? fileData[0];
 
   return (
-    <div className={`mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 ${mono ? "font-mono" : ""}`}>
+    <div className={`mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8 ${mono ? "font-mono" : ""}`} style={themeStyleOverrides}>
       {!noheader && (
         <header className="mb-6 flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">

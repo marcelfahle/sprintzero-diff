@@ -10,6 +10,14 @@ export interface DeliverableCustomer {
   name: string;
   default?: string;
   projects: Record<string, DeliverableProject>;
+  branding?: {
+    company?: string;
+    accentColor?: string;
+    accentColorLight?: string;
+    accentColorDark?: string;
+    url?: string;
+    logo?: string;
+  };
 }
 
 export type DeliverableRegistry = Record<string, DeliverableCustomer>;
