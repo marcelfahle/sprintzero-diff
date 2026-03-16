@@ -112,18 +112,27 @@ export default async function GistPage({ params }: PageProps) {
 
   const filenames = files.map((f) => f.filename);
 
+  // Strip trailing "Delivered by ..." boilerplate from markdown files
+  // (redundant with the engagement footer)
+  const DELIVERED_BY_RE = /\n---\s*\n+\*Delivered by .+\*\s*$/;
+
   // Pre-render all file panels in parallel
   const fileData: FileData[] = await Promise.all(
-    files.map(async (file) => ({
-      filename: file.filename,
-      rawContent: file.content,
-      isMarkdown: isMarkdown(file.filename),
-      renderedContent: await renderFile(
-        file.filename,
-        file.content,
-        file.language,
-      ),
-    })),
+    files.map(async (file) => {
+      const content = isMarkdown(file.filename)
+        ? file.content.replace(DELIVERED_BY_RE, "")
+        : file.content;
+      return {
+        filename: file.filename,
+        rawContent: content,
+        isMarkdown: isMarkdown(file.filename),
+        renderedContent: await renderFile(
+          file.filename,
+          content,
+          file.language,
+        ),
+      };
+    }),
   );
 
   // Extract frontmatter from first markdown file for extra metadata
