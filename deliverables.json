@@ -27,5 +27,23 @@
       "accentColorDark": "#0f766e",
       "url": "https://founderwell.com"
     }
+  },
+  "encappture-quickblox": {
+    "name": "Encappture",
+    "default": "remediation-plan",
+    "projects": {
+      "remediation-plan": {
+        "gistId": "133ca32003ca8e4e06c7c320d0ea4f99",
+        "name": "QuickBlox Remediation Plan",
+        "date": "2026-05"
+      }
+    },
+    "branding": {
+      "company": "FounderWell",
+      "accentColor": "#0d9488",
+      "accentColorLight": "#2dd4bf",
+      "accentColorDark": "#0f766e",
+      "url": "https://founderwell.com"
+    }
   }
 }
